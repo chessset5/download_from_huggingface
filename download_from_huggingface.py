@@ -1,9 +1,29 @@
 import huggingface_hub
 import os
 
-CACHE_DIR = r"D:\TEMP\hugging_face_cache"
+#Change these:
+DOWNLOAD_DIR :str = r"E:\llms"
+TO_CACHE :bool = TRUE
+CACHE_DIR :str = r"D:\TEMP\hugging_face_cache"
+# Use one if internet is slow or you are downloading to an HDD
+NUM_OF_THREADS = 1
 
-BASE_DIR = r"E:\llms"
+# raw string id list from hugging face
+# example here is currently deep seek
+HUGGINGFACE_IDS = [
+        r"deepseek-ai/DeepSeek-V3-Base",
+        r"deepseek-ai/DeepSeek-V3",
+        r"deepseek-ai/DeepSeek-R1",
+        r"deepseek-ai/DeepSeek-R1-Zero",
+        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+        r"deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
+        r"deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+        r"",
+]
+
 
 
 def download_from_huggingface(repo_id: str, local_dir: str) -> None:
@@ -14,12 +34,19 @@ def download_from_huggingface(repo_id: str, local_dir: str) -> None:
     # local_dir = "./local_directory"  # Replace with your desired local directory+
     normalized_dir = os.path.normpath(local_dir)
     os.makedirs(normalized_dir, exist_ok=True)
-    huggingface_hub.snapshot_download(
-        repo_id=repo_id, 
-        local_dir=normalized_dir, 
-        cache_dir=CACHE_DIR,
-        max_workers=1,
-    )
+    if TO_CACHE:
+        huggingface_hub.snapshot_download(
+            repo_id=repo_id, 
+            local_dir=normalized_dir, 
+            cache_dir=CACHE_DIR,
+            max_workers=NUM_OF_THREADS,
+        )
+    else:
+        huggingface_hub.snapshot_download(
+            repo_id=repo_id, 
+            local_dir=normalized_dir,
+            max_workers=NUM_OF_THREADS,
+        )
 
 
 def make_dir_paths(id_list: list[str], base_dir: str) -> list[tuple[str, str]]:
@@ -45,21 +72,9 @@ def main() -> None:
     download_deepseek
     """
 
-    base_dir = BASE_DIR
+    base_dir = DOWNLOAD_DIR
 
-    id_list: list[str] = [
-        r"deepseek-ai/DeepSeek-V3-Base",
-        r"deepseek-ai/DeepSeek-V3",
-        r"deepseek-ai/DeepSeek-R1",
-        r"deepseek-ai/DeepSeek-R1-Zero",
-        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
-        r"deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
-        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
-        r"deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-        r"deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-        r"",
-    ]
+    id_list: list[str] = HUGGINGFACE_IDS
 
     repos: list[str] = make_dir_paths(id_list=id_list, base_dir=base_dir)
 
